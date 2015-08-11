@@ -1,14 +1,11 @@
+require File.expand_path('../../lib/pipeline', __FILE__)
+
 module API
   class Pipelines < Grape::API
     resource :pipelines do
       desc 'Get all pipelines'
       get do
-        [
-          {
-            name: 'test',
-            runs: 4
-          }
-        ]
+        Pipeline.all
       end
     end
   end
