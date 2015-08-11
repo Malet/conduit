@@ -1,4 +1,4 @@
-require File.expand_path('../pipelines.rb', __FILE__)
+require File.expand_path('../pipelines', __FILE__)
 
 module API
   class Root < Grape::API
