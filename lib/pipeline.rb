@@ -11,4 +11,8 @@ class Pipeline
       }
     end.compact
   end
+
+  def self.find
+    all.find{ |pipeline| pipeline[:id] == params[:id] }
+  end
 end

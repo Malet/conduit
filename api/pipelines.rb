@@ -13,9 +13,7 @@ module API
         requires :id, type: String, desc: "Pipeline ID (including namespace)"
       end
       get ':id' do
-        Pipeline.all.find do |pipeline|
-          pipeline[:id] == params[:id]
-        end
+        Pipeline.find(params[:id])
       end
     end
   end
