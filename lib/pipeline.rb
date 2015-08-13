@@ -1,18 +1,62 @@
+require 'yaml'
+require File.expand_path('../pipeline_stage', __FILE__)
+
 class Pipeline
   def self.all
     Dir['pipelines/**/*'].map do |definition|
-      next if definition == '.gitkeep'
-
-      {
-        id: definition
-          .sub(/^.+?\//, '')  # Remove 'pipelines/'
-          .sub(/\..+?$/, ''), # Remove '.yaml'/'.yml'
-        spec: YAML.load(File.read(definition))
-      }
+      next if definition == '.gitignore'
+      from_file(definition)
     end.compact
   end
 
-  def self.find
-    all.find{ |pipeline| pipeline[:id] == params[:id] }
+  def self.find(id)
+    new(all.find{ |pipeline| pipeline['id'] == id })
+  end
+
+  def self.from_yaml(id:, yml:)
+    new(
+      id: id,
+      repository_url: (yml['repository']['url'] rescue nil),
+      repository_type: (yml['repository']['type'] rescue nil),
+      environment: yml['environment'],
+      stages: (yml['stages'].map{ |stage| Stage.new(stage) } rescue nil)
+    )
+  end
+
+  def self.from_file(file)
+    from_yaml(
+      id:  id_from_file(file),
+      yml: YAML.load(File.read(file))
+    )
+  end
+
+  PROPERTIES = {
+    id:              String,
+    repository_url:  String,
+    repository_type: String,
+    environment:     Hash,
+    stages:          Array
+  }
+
+  PROPERTIES.each do |k,v|
+    attr_reader k.to_sym
+  end
+
+  def initialize(options)
+    PROPERTIES.each do |k,v|
+      type = options[k].class
+      unless type == v
+        raise StandardError.new("#{k} should be of type #{v} but was #{type}")
+      end
+      instance_variable_set(:"@#{k}", options[k])
+    end
+  end
+
+  private
+
+  def self.id_from_file(file)
+    file
+      .sub(/^.*?pipelines\//, '') # Remove '*pipelines/'
+      .sub(/\..+?$/, '')          # Remove '.yaml'/'.yml'
   end
 end

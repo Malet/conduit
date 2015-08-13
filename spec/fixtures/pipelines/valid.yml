@@ -1,0 +1,15 @@
+repository:
+  type: git
+  url: git@github.com:Malet/conduit.git
+environment:
+  API_KEY: secret
+stages:
+  - name: build
+    commands:
+      - echo 'hello'
+  - name: test
+    commands:
+      - echo 'tests passed' && exit 0
+  - name: deploy
+    commands:
+      - ssh deploy@example.org docker pull && systemctl restart valid-web
