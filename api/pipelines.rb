@@ -5,7 +5,7 @@ module API
     resource :pipelines do
       desc 'Get all pipelines'
       get do
-        Pipeline.all
+        Pipeline.all.map(&:as_json)
       end
 
       desc 'Get pipeline by id'
@@ -13,7 +13,9 @@ module API
         requires :id, type: String, desc: "Pipeline ID (including namespace)"
       end
       get ':id' do
-        Pipeline.find(params[:id])
+        pipeline = Pipeline.find(params[:id]) ?
+          pipeline.as_json :
+          error!("Pipeline not found with id: #{params[:id]}", 404)
       end
     end
   end

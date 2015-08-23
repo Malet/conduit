@@ -10,7 +10,7 @@ class Pipeline
   end
 
   def self.find(id)
-    new(all.find{ |pipeline| pipeline['id'] == id })
+    all.find{ |pipeline| pipeline.id == id }
   end
 
   def self.from_yaml(id:, yml:)
@@ -26,7 +26,7 @@ class Pipeline
   def self.from_file(file)
     from_yaml(
       id:  id_from_file(file),
-      yml: YAML.load(File.read(file))
+      yml: YAML.load_file(file)
     )
   end
 
@@ -46,10 +46,25 @@ class Pipeline
     PROPERTIES.each do |k,v|
       type = options[k].class
       unless type == v
-        raise StandardError.new("#{k} should be of type #{v} but was #{type}")
+        raise StandardError.new(
+          "#{k} should be of type #{v} but was #{type}.\n" +
+          "options = #{options.inspect}"
+        )
       end
       instance_variable_set(:"@#{k}", options[k])
     end
+  end
+
+  def as_json
+    {
+      id: self.id,
+      environment: self.environment,
+      repository: {
+        type: self.repository_type,
+        url:  self.repository_url
+      },
+      stages: self.stages.map(&:as_json)
+    }
   end
 
   private
