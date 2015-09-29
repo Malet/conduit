@@ -1,4 +1,5 @@
 require 'yaml'
+require 'possibly'
 require File.expand_path('../pipeline_stage', __FILE__)
 
 class Pipeline
@@ -51,8 +52,16 @@ class Pipeline
           "options = #{options.inspect}"
         )
       end
+
+      # This lets the stages know about the pipeline they're running in
+      options[k].map!{ |stage| stage.merge('pipeline' => self) } if k == 'stages'
+
       instance_variable_set(:"@#{k}", options[k])
     end
+  end
+
+  def trigger
+    self.stages.map(&:run)
   end
 
   def as_json
