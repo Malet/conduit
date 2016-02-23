@@ -14,9 +14,11 @@ module API
         requires :id, type: String, desc: "Pipeline ID (including namespace)"
       end
       get ':id' do
-        pipeline = Pipeline.find(params[:id]) ?
-          pipeline.as_json :
+        if pipeline = Pipeline.find(params[:id])
+          pipeline.as_json
+        else
           error!("Pipeline not found with id: #{params[:id]}", 404)
+        end
       end
 
       desc 'Schedule a pipeline'
