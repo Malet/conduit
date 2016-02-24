@@ -1,5 +1,5 @@
 require File.expand_path('../../lib/pipeline', __FILE__)
-require File.expand_path('../../lib/pipeline_queue', __FILE__)
+require File.expand_path('../../lib/pipeline_runner', __FILE__)
 
 module API
   class Pipelines < Grape::API
@@ -27,7 +27,7 @@ module API
       end
       post ':id/schedule' do
         if pipeline = Pipeline.find(params[:id])
-          pipeline.trigger
+          PipelineRunner.new(pipeline).run
         else
           error!("Pipeline not found with id: #{params[:id]}", 404)
         end

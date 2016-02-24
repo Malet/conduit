@@ -54,7 +54,9 @@ class Pipeline
       end
 
       # This lets the stages know about the pipeline they're running in
-      options[k].map!{ |stage| stage.merge('pipeline' => self) } if k == 'stages'
+      if k == 'stages'
+        options[k].map!{ |stage| stage.merge('pipeline' => self) }
+      end
 
       instance_variable_set(:"@#{k}", options[k])
     end
